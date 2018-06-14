@@ -40,6 +40,14 @@ class TrainData(object):
     def get_categorical_maps(self):
         return self._categorical_maps
 
+    @property
+    def X(self):
+        return self._df
+
+    @property
+    def y(self):
+        return self._labels
+
 # 6.
 class TestData(object):
 
@@ -51,6 +59,14 @@ class TestData(object):
             self._df[column] = self._df[column].map(cat_map)
 
         self._df.fillna(imputation_map, inplace=True)
+
+    @property
+    def X(self):
+        return self._df
+
+    @property
+    def y(self):
+        return self._labels
 
 df = load_data('train.csv')
 train, test = split_train_test(df)
