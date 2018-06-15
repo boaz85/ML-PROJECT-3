@@ -1,109 +1,90 @@
-from Queue import Queue
-
 import numpy as np
 
+from part2 import RegressionTreeEnsemble, RegressionTreeNode, RegressionTree
 
-class RegressionTreeNode(object):
+class CART(object):
 
-    def __init__(self):
-        self.s = None
-        self.j = None
-        self.left_descendant = None
-        self.right_descendant = None
-        self.const = None
+    def __init__(self, max_depth, min_node_size):
+        self._max_depth = max_depth
+        self._min_node_size = min_node_size
 
-    def make_terminal(self, c):
-        self.const = c
+    def fit(self, train_set):
 
-    def split(self, j, s):
-        self.j, self.s = j, s
-        self.left_descendant = RegressionTreeNode()
-        self.right_descendant = RegressionTreeNode()
+        root = RegressionTreeNode()
+        self._recursive_spawn(root, train_set, 1)
 
-        return self.left_descendant, self.right_descendant
+        return RegressionTree(root)
 
-    def print_sub_tree(self):
-        pass
+    def _recursive_spawn(self, node, data, current_depth):
 
-    @property
-    def items(self):
-        return self.items
+        X, y = data
 
-class RegressionTree(object):
+        if current_depth == self._max_depth:
+            node.make_terminal(np.mean(y))
+            return
 
-    def __init__(self, root):
-        self.root = root
+        j, s = self._get_optimal_partition((X, y))
 
-    def evaluate(self, x):
-        pass
+        p_l = X[:, j] <= s
+        p_r = X[:, j] > s
 
-class RegressionTreeEnsemble(object):
+        if p_l.sum() >= self._min_node_size and p_r.sum() >= self._min_node_size:
 
-    def __init__(self):
-        self.trees = []
-        self.weights = []
-        self.M = 0
-        self.c = None
+            left, right = node.split(j, s)
+            self._recursive_spawn(left, (X[p_l], y[p_l]), current_depth + 1)
+            self._recursive_spawn(right, (X[p_r], y[p_r]), current_depth + 1)
 
-    def add_tree(self, tree, weight):
-        pass
+        else:
+            node.make_terminal(np.mean(y))
 
-    def set_initial_constant(self, c):
-        self.c = c
+    def _get_optimal_partition(self, P):
 
-    def evaluate(self, x, m):
-        pass
+        X, y = P
+        m, d = X.shape
+        j_opt, s_opt = None, None
 
+        min_so_far = np.inf
 
-def recursive_spawn(node, data, current_depth, min_node_size):
+        for j in range(d):
 
-    X, y = data
+            for s in np.unique(X[:, j]):
+                r_lt = np.where(X[:, j] <= s)[0]
+                r_gt = np.where(X[:, j] > s)[0]
+                c_lt = np.mean(y[r_lt])
+                c_gt = np.mean(y[r_gt])
+                loss = np.sum(np.power(y[r_lt] - c_lt, 2)) + np.sum(np.power(y[r_gt] - c_gt, 2))
+                if loss < min_so_far:
+                    min_so_far = loss
+                    j_opt, s_opt = j, s
 
-    if current_depth == 0:
-        node.make_terminal(np.mean(y))
-        return
-
-    j, s = get_optimal_partition((X, y))
-
-    p_l = X[:, j] <= s
-    p_r = X[:, j] > s
-
-    if p_l.sum() >= min_node_size and p_r.sum() >= min_node_size:
-
-        left, right = node.split(j, s)
-        recursive_spawn(left, (X[p_l], y[p_l]), current_depth - 1, min_node_size)
-        recursive_spawn(right, (X[p_r], y[p_r]), current_depth - 1, min_node_size)
-
-    else:
-        node.make_terminal(np.mean(y))
+        return j_opt, s_opt
 
 
-def cart(max_depth, min_node_size, dataset):
+class GBRT(object):
 
-    root = RegressionTreeNode()
-    recursive_spawn(root, dataset, max_depth - 1, min_node_size)
+    def __init__(self, num_of_basis_functions, num_of_leaves, min_node_size):
+        self._num_of_basis_functions = num_of_basis_functions
+        self._cart = CART(np.log2(num_of_leaves) + 1, min_node_size)
 
-    return RegressionTree(root)
+    def fit(self, train_set):
 
+        X, y = train_set.X, train_set.y
 
-def get_optimal_partition(P):
+        learners = [lambda x: np.mean(y)]
+        reg_tree_ensemble = RegressionTreeEnsemble()
 
-    X, y = P
-    m, d = X.shape
-    j_opt, s_opt = None, None
+        for m in range(1, self._num_of_basis_functions):
+            g_m = []
 
-    min_so_far = np.inf
+            for i, (x_i, y_i) in enumerate(zip(X, y)):
+                g_m.append(-(y_i - learners[m - 1](x_i)))
 
-    for j in range(d):
+            g_m = np.array(g_m)
+            tree = self._cart.fit((X, g_m))
+            phi_of_x = np.array([tree.evaluate(x) for x in X])
+            beta_m = np.dot(-g_m, phi_of_x) / np.sum(np.power(phi_of_x, 2))
+            reg_tree_ensemble.add_tree(tree, beta_m)
+            current_learner = (lambda m: lambda x: learners[m - 1](x) - beta_m * tree.evaluate(x))(m)
+            learners.append(current_learner)
 
-        for s in np.unique(X[:, j]):
-            r_lt = np.where(X[:, j] <= s)[0]
-            r_gt = np.where(X[:, j] > s)[0]
-            c_lt = np.mean(y[r_lt])
-            c_gt = np.mean(y[r_gt])
-            loss = np.sum(np.power(y[r_lt] - c_lt, 2)) + np.sum(np.power(y[r_gt] - c_gt, 2))
-            if loss < min_so_far:
-                min_so_far = loss
-                j_opt, s_opt = j, s
-
-    return j_opt, s_opt
+        return reg_tree_ensemble
