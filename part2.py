@@ -19,18 +19,18 @@ class RegressionTreeNode(object):
 
         return self.left_descendant, self.right_descendant
 
-    def print_sub_tree(self):
-        print self._get_string_representation()
+    def print_sub_tree(self, feature_names):
+        print self._get_string_representation(*list(feature_names))
 
     def _get_string_representation(self, indent_level=0):
         indent_space = indent_level * '\t'
 
         if self.is_terminal():
-            return '{}return {}'.format(indent_space, self.const)
+            return '{}return {}\n'.format(indent_space, self.const)
 
-        str = '''{}if x['{{{}}}']<={} then\n\t'''.format(indent_space, self.j, self.s)
+        str = '''{}if x['{{{}}}']<={} then\n'''.format(indent_space, self.j, self.s)
         str += self.left_descendant._get_string_representation(indent_level + 1)
-        str += '''{}if x['{{{}}}']>{} then\n\t'''.format(indent_space, self.j, self.s)
+        str += '''{}if x['{{{}}}']>{} then\n'''.format(indent_space, self.j, self.s)
         str += self.right_descendant._get_string_representation(indent_level + 1)
 
         return  str
