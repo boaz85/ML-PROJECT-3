@@ -66,22 +66,41 @@ class GBRT(object):
         self._num_of_basis_functions = num_of_basis_functions
         self._cart = CART(np.log2(num_of_leaves) + 1, min_node_size)
 
-    def fit(self, train_set):
+    def _mean_error(self, predictions, labels):
+        return np.mean(np.sum(np.power(labels - predictions, 2)))
 
-        X, y = train_set.X, train_set.y
+    def fit(self, train_set, test_set=None):
 
-        learners = [lambda x: np.mean(y)]
+        train_X, train_y = train_set.X, train_set.y
+
+        learners = [lambda x: np.mean(train_y)]
         reg_tree_ensemble = RegressionTreeEnsemble()
+        train_errors, test_errors = [], []
 
         for m in range(1, self._num_of_basis_functions):
-            g_m = []
 
-            for i, (x_i, y_i) in enumerate(zip(X, y)):
-                g_m.append(-(y_i - learners[m - 1](x_i)))
+            train_predictions = []
 
-            g_m = np.array(g_m)
-            tree = self._cart.fit((X, g_m))
-            phi_of_x = np.array([tree.evaluate(x) for x in X])
+            for x_i in train_X:
+                train_predictions.append(learners[m - 1](x_i))
+
+            train_errors.append(self._mean_error(train_predictions, train_y))
+
+            error_str = 'Learners: {:3d} | Train error: {:.2f} |'.format(m - 1, train_errors[-1])
+
+            if test_set is not None:
+                test_X, test_y = test_set
+                test_predictions = []
+                for x_i in test_X:
+                    test_predictions.append(learners[m - 1](x_i))
+
+                test_errors.append(self._mean_error(test_predictions, test_y))
+                error_str += 'Test error | {:.2f} |'.format(m - 1, test_errors[-1])
+
+            print error_str
+            g_m = -(train_y - train_predictions)
+            tree = self._cart.fit((train_X, g_m))
+            phi_of_x = np.array([tree.evaluate(x) for x in train_X])
             beta_m = np.dot(-g_m, phi_of_x) / np.sum(np.power(phi_of_x, 2))
             reg_tree_ensemble.add_tree(tree, beta_m)
             current_learner = (lambda m: lambda x: learners[m - 1](x) - beta_m * tree.evaluate(x))(m)
