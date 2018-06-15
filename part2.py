@@ -1,3 +1,5 @@
+import numpy as np
+
 class RegressionTreeNode(object):
 
     def __init__(self):
@@ -46,14 +48,19 @@ class RegressionTreeEnsemble(object):
     def __init__(self):
         self.trees = []
         self.weights = []
-        self.M = 0
         self.c = None
 
     def add_tree(self, tree, weight):
-        pass
+        self.trees.append(tree)
+        self.weights.append(weight)
 
     def set_initial_constant(self, c):
         self.c = c
 
-    def evaluate(self, x, m):
-        pass
+    @property
+    def M(self):
+        return len(self.trees)
+
+    def evaluate(self, x, m=None):
+        predictions = [tree.evaluate(x) for tree in self.trees[:m or -1]]
+        return np.dot(predictions, self.weights[:m or -1])
