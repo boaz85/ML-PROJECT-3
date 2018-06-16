@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from part2 import RegressionTreeEnsemble, RegressionTreeNode, RegressionTree
-from temp import fprint
 
 
 class CART(object):
