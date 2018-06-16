@@ -42,11 +42,11 @@ class TrainData(object):
 
     @property
     def X(self):
-        return self._df
+        return self._df.values
 
     @property
     def y(self):
-        return self._labels
+        return self._labels.values
 
 # 6.
 class TestData(object):
@@ -62,14 +62,8 @@ class TestData(object):
 
     @property
     def X(self):
-        return self._df
+        return self._df.values
 
     @property
     def y(self):
-        return self._labels
-
-df = load_data('train.csv')
-train, test = split_train_test(df)
-
-train = TrainData(train)
-test = TestData(test, train.get_imputation_map(), train.get_categorical_maps())
+        return self._labels.values

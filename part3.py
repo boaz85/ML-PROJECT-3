@@ -67,43 +67,43 @@ class GBRT(object):
         self._cart = CART(np.log2(num_of_leaves) + 1, min_node_size)
 
     def _mean_error(self, predictions, labels):
-        return np.mean(np.sum(np.power(labels - predictions, 2)))
+        return np.mean(np.power(labels - predictions, 2))
 
     def fit(self, train_set, test_set=None):
 
         train_X, train_y = train_set.X, train_set.y
 
-        learners = [lambda x: np.mean(train_y)]
         reg_tree_ensemble = RegressionTreeEnsemble()
+        reg_tree_ensemble.set_initial_constant(np.mean(train_y))
+
+        train_f_last = np.repeat(reg_tree_ensemble.c, len(train_X))
         train_errors, test_errors = [], []
 
         for m in range(1, self._num_of_basis_functions):
 
-            train_predictions = []
-
-            for x_i in train_X:
-                train_predictions.append(learners[m - 1](x_i))
-
-            train_errors.append(self._mean_error(train_predictions, train_y))
-
-            error_str = 'Learners: {:3d} | Train error: {:.2f} |'.format(m - 1, train_errors[-1])
-
-            if test_set is not None:
-                test_X, test_y = test_set
-                test_predictions = []
-                for x_i in test_X:
-                    test_predictions.append(learners[m - 1](x_i))
-
-                test_errors.append(self._mean_error(test_predictions, test_y))
-                error_str += 'Test error | {:.2f} |'.format(m - 1, test_errors[-1])
-
-            print error_str
-            g_m = -(train_y - train_predictions)
+            g_m = -(train_y - train_f_last)
             tree = self._cart.fit((train_X, g_m))
+            #tree.root.print_sub_tree(train_set._df.columns)
+
             phi_of_x = np.array([tree.evaluate(x) for x in train_X])
             beta_m = np.dot(-g_m, phi_of_x) / np.sum(np.power(phi_of_x, 2))
             reg_tree_ensemble.add_tree(tree, beta_m)
-            current_learner = (lambda m: lambda x: learners[m - 1](x) - beta_m * tree.evaluate(x))(m)
-            learners.append(current_learner)
+
+            train_f_last += beta_m * phi_of_x
+
+            train_errors.append(self._mean_error(train_f_last, train_y))
+            error_str = 'Learners: {:3d} | Train error: {:.2f} |'.format(m, train_errors[-1])
+
+            if test_set is not None:
+
+                test_predictions = []
+
+                for x_i in test_set.X:
+                    test_predictions.append(reg_tree_ensemble.evaluate(x_i))
+
+                test_errors.append(self._mean_error(test_predictions, test_set.y))
+                error_str += ' Test error | {:.2f} |'.format(test_errors[-1])
+
+            print error_str
 
         return reg_tree_ensemble
