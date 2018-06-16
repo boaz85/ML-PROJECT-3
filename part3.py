@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from part2 import RegressionTreeEnsemble, RegressionTreeNode, RegressionTree
+from temp import fprint
+
 
 class CART(object):
 
@@ -120,7 +122,8 @@ class GBRT(object):
 
             if m in self._shrinkage_checkpoints:
                 shrinkage_factor /= 2.0
-                print 'Shrinkage factor updated to: ', shrinkage_factor
+                if liveview:
+                    print 'Shrinkage factor updated to: ', shrinkage_factor
 
             train_errors.append(self._mean_error(train_f_last, train_y))
             error_str = 'Learners: {:3d} | Train error: {:15.2f} |'.format(m, train_errors[-1])
