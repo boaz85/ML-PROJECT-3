@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 from part2 import RegressionTreeEnsemble, RegressionTreeNode, RegressionTree
 
@@ -7,7 +10,7 @@ class CART(object):
     def __init__(self, max_depth, min_node_size, num_thresholds):
         self._max_depth = max_depth
         self._min_node_size = min_node_size
-        self._num_thresholds = num_thresholds
+        self._percentiles = np.linspace(0, 100, num_thresholds + 1, False, dtype=int)[1:]
 
     def fit(self, train_set):
 
@@ -48,7 +51,9 @@ class CART(object):
 
         for j in range(d):
 
-            for s in np.unique(X[:, j]):
+            values = np.percentile(np.unique(X[:, j]), self._percentiles, interpolation='higher')
+
+            for s in values:
                 r_lt = np.where(X[:, j] <= s)[0]
                 r_gt = np.where(X[:, j] > s)[0]
                 c_lt = np.mean(y[r_lt]) if len(r_lt) else np.NaN
@@ -63,12 +68,12 @@ class CART(object):
 
 class GBRT(object):
 
-    def __init__(self, num_of_basis_functions, num_of_leaves, min_node_size, shrinkage, subsampling, num_thresholds):
+    def __init__(self, num_of_basis_functions, num_of_leaves, min_node_size, initial_shrinkage, subsampling_factor, num_thresholds):
         self._num_of_basis_functions = num_of_basis_functions
-        self._shrinkage = shrinkage
-        self._subsampling = subsampling
-        self._cart = CART(np.log2(num_of_leaves) + 1, min_node_size, num_thresholds)
-        self.shrinkage_checkpoints = np.logspace(-1, -10, 5, base=2)
+        self._shrinkage = initial_shrinkage
+        self._subsampling = subsampling_factor
+        self._cart = CART(int(np.log2(num_of_leaves) + 1), min_node_size, num_thresholds)
+        self._shrinkage_checkpoints = ((1 - np.logspace(-1, -5, 5, base=2)) * self._num_of_basis_functions).astype(int)
 
     def _mean_error(self, predictions, labels):
         return np.mean(np.power(labels - predictions, 2))
@@ -77,6 +82,18 @@ class GBRT(object):
         samples = np.arange(num_of_samples)
         np.random.shuffle(samples)
         return samples[:int(num_of_samples * self._subsampling)]
+
+
+    def update_live_view(self, iteration, train_errors, test_errors, block=False):
+
+        plt.plot(range(iteration), train_errors, color='green')
+        plt.plot(range(iteration), test_errors, color='orange')
+
+        for shrink_split in self._shrinkage_checkpoints[self._shrinkage_checkpoints <= iteration]:
+            plt.axvline(x=shrink_split, color='red')
+
+        plt.show(block=block)
+        plt.pause(0.01)
 
     def fit(self, train_set, test_set=None):
 
@@ -89,7 +106,6 @@ class GBRT(object):
         train_errors, test_errors = [], []
 
         shrinkage_factor = self._shrinkage
-        shrinkage_decay_checkpoints = ((1 - np.logspace(-1, -5, 5, base=2)) * self._num_of_basis_functions).astype(int)
 
         for m in range(1, self._num_of_basis_functions):
 
@@ -104,7 +120,7 @@ class GBRT(object):
 
             train_f_last += shrinkage_factor * beta_m * phi_of_x
 
-            if m in shrinkage_decay_checkpoints:
+            if m in self._shrinkage_checkpoints:
                 shrinkage_factor /= 2.0
                 print 'Shrinkage factor updated to: ', shrinkage_factor
 
@@ -123,4 +139,8 @@ class GBRT(object):
 
             print error_str
 
+            if m % 10 == 0:
+                self.update_live_view(m, train_errors, test_errors)
+
+        self.update_live_view(m, train_errors, test_errors, block=True)
         return reg_tree_ensemble
