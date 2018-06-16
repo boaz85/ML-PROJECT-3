@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 from part2 import RegressionTreeEnsemble, RegressionTreeNode, RegressionTree
@@ -95,7 +93,7 @@ class GBRT(object):
         plt.show(block=block)
         plt.pause(0.01)
 
-    def fit(self, train_set, test_set=None):
+    def fit(self, train_set, test_set=None, liveview=False):
 
         train_X, train_y = train_set.X, train_set.y
 
@@ -137,10 +135,11 @@ class GBRT(object):
                 test_errors.append(self._mean_error(test_predictions, test_set.y))
                 error_str += ' Test error | {:15.2f} |'.format(test_errors[-1])
 
-            print error_str
-
-            if m % 10 == 0:
+            if liveview and m % 10 == 0:
+                print error_str
                 self.update_live_view(m, train_errors, test_errors)
 
-        self.update_live_view(m, train_errors, test_errors, block=True)
-        return reg_tree_ensemble
+        if liveview:
+            self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
+
+        return reg_tree_ensemble, train_errors, test_errors
