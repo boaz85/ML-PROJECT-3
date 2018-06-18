@@ -20,18 +20,18 @@ class RegressionTreeNode(object):
         return self.left_descendant, self.right_descendant
 
     def print_sub_tree(self, feature_names):
-        print self._get_string_representation().format(*list(feature_names))
+        print self.get_string_representation().format(*list(feature_names))
 
-    def _get_string_representation(self, indent_level=0):
+    def get_string_representation(self, indent_level=0):
         indent_space = indent_level * '\t'
 
         if self.is_terminal():
             return '{}return {}\n'.format(indent_space, self.const)
 
         str = '''{}if x['{{{}}}'] <= {} then\n'''.format(indent_space, self.j, self.s)
-        str += self.left_descendant._get_string_representation(indent_level + 1)
+        str += self.left_descendant.get_string_representation(indent_level + 1)
         str += '''{}if x['{{{}}}'] > {} then\n'''.format(indent_space, self.j, self.s)
-        str += self.right_descendant._get_string_representation(indent_level + 1)
+        str += self.right_descendant.get_string_representation(indent_level + 1)
 
         return  str
 
@@ -59,24 +59,24 @@ class RegressionTree(object):
 class RegressionTreeEnsemble(object):
 
     def __init__(self):
-        self.trees = []
+        self._trees = []
         self.weights = []
         self.c = None
+        self.M = 0
 
     def add_tree(self, tree, weight):
-        self.trees.append(tree)
+        self._trees.append(tree)
         self.weights.append(weight)
+        self.M += 1
 
     def set_initial_constant(self, c):
         self.c = c
 
-    @property
-    def M(self):
-        return len(self.trees)
-
     def evaluate(self, x, m=None):
-        if self.M == 0:
-            return np.NaN
-
-        predictions = [tree.evaluate(x) for tree in self.trees[:m]]
+        m = m or self.M
+        predictions = [tree.evaluate(x) for tree in self._trees[:m]]
         return self.c + np.dot(predictions, self.weights[:m])
+
+    @property
+    def trees(self):
+        return self._trees[:self.M]

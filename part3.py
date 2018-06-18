@@ -85,7 +85,6 @@ class GBRT(object):
         np.random.shuffle(samples)
         return samples[:int(num_of_samples * self._subsampling)]
 
-
     def update_live_view(self, iteration, train_errors, test_errors, block=False):
 
         plt.plot(range(iteration), train_errors, color='green')
@@ -147,8 +146,13 @@ class GBRT(object):
 
         # if liveview:
         #     self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
+        self._reg_tree_ensemble.M = np.argmin(test_errors) + 1
 
         return train_errors, test_errors
 
     def predict(self, x, m=None):
         return self._reg_tree_ensemble.evaluate(x, m)
+
+    @property
+    def ensemble(self):
+        return self._reg_tree_ensemble if hasattr(self, '_reg_tree_ensemble') else None

@@ -1,0 +1,47 @@
+Tree #1
+--------
+
+if x['OverallQual'] <= 7.0 then
+	return 20380.7073306
+if x['OverallQual'] > 7.0 then
+	return -115256.500127
+
+
+
+Tree #2
+--------
+
+if x['GrLivArea'] <= 1496.0 then
+	return 25517.2917958
+if x['GrLivArea'] > 1496.0 then
+	return -26997.9916676
+
+
+
+Tree #3
+--------
+
+if x['FullBath'] <= 2.0 then
+	return 3611.31899737
+if x['FullBath'] > 2.0 then
+	return -158793.300938
+
+
+
+Tree #4
+--------
+
+if x['GarageArea'] <= 380.0 then
+	return 23759.8154016
+if x['GarageArea'] > 380.0 then
+	return -10955.5067984
+
+
+
+Tree #5
+--------
+
+return 5294.41403808
+
+
+
