@@ -144,8 +144,6 @@ class GBRT(object):
             if liveview and m % 10 == 0:
                 self.update_live_view(m, train_errors, test_errors)
 
-        # if liveview:
-        #     self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
         self._reg_tree_ensemble.M = np.argmin(test_errors) + 1
 
         return train_errors, test_errors
