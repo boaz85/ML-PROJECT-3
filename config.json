@@ -1,5 +1,5 @@
 {
-  "num_of_basis_functions": 350,
+  "num_of_basis_functions": 500,
   "num_of_leaves": 2,
   "min_node_size": 10,
   "initial_shrinkage": 1.0,

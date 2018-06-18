@@ -52,8 +52,12 @@ class TrainData(object):
 class TestData(object):
 
     def __init__(self, data, imputation_map, categorical_maps):
-        self._df = data.drop('SalePrice', axis=1)
-        self._labels = data['SalePrice']
+
+        if 'SalePrice' in data.columns:
+            self._labels = data['SalePrice']
+            self._df = data.drop('SalePrice', axis=1)
+        else:
+            self._df = data.copy()
 
         for column, cat_map in categorical_maps.iteritems():
             self._df[column] = self._df[column].map(cat_map)
@@ -66,4 +70,5 @@ class TestData(object):
 
     @property
     def y(self):
-        return self._labels.values
+        if hasattr(self, '_labels'):
+            return self._labels.values

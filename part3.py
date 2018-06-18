@@ -77,6 +77,9 @@ class GBRT(object):
     def _mean_error(self, predictions, labels):
         return np.mean(np.power(labels - predictions, 2))
 
+    def _rmsle(self, predictions, labels):
+        return np.sqrt(np.mean(np.power(np.log(predictions) - np.log(labels), 2)))
+
     def _subsample(self, num_of_samples):
         samples = np.arange(num_of_samples)
         np.random.shuffle(samples)
@@ -98,10 +101,10 @@ class GBRT(object):
 
         train_X, train_y = train_set.X, train_set.y
 
-        reg_tree_ensemble = RegressionTreeEnsemble()
-        reg_tree_ensemble.set_initial_constant(np.mean(train_y))
+        self._reg_tree_ensemble = RegressionTreeEnsemble()
+        self._reg_tree_ensemble.set_initial_constant(np.mean(train_y))
 
-        train_f_last = np.repeat(reg_tree_ensemble.c, len(train_X))
+        train_f_last = np.repeat(self._reg_tree_ensemble.c, len(train_X))
         train_errors, test_errors = [], []
 
         shrinkage_factor = self._shrinkage
@@ -115,7 +118,7 @@ class GBRT(object):
 
             phi_of_x = np.array([tree.evaluate(x) for x in train_X])
             beta_m = np.dot(-g_m, phi_of_x[samples]) / np.sum(np.power(phi_of_x[samples], 2))
-            reg_tree_ensemble.add_tree(tree, beta_m)
+            self._reg_tree_ensemble.add_tree(tree, beta_m)
 
             train_f_last += shrinkage_factor * beta_m * phi_of_x
 
@@ -124,24 +127,28 @@ class GBRT(object):
                 if liveview:
                     print 'Shrinkage factor updated to: ', shrinkage_factor
 
+
             train_errors.append(self._mean_error(train_f_last, train_y))
-            error_str = 'Learners: {:3d} | Train error: {:15.2f} |'.format(m, train_errors[-1])
+            error_str = 'Learners: {:3d} | Train error: {:15.5f} |'.format(m, train_errors[-1])
 
             if test_set is not None:
 
                 test_predictions = []
 
                 for x_i in test_set.X:
-                    test_predictions.append(reg_tree_ensemble.evaluate(x_i))
+                    test_predictions.append(self._reg_tree_ensemble.evaluate(x_i))
 
                 test_errors.append(self._mean_error(test_predictions, test_set.y))
-                error_str += ' Test error | {:15.2f} |'.format(test_errors[-1])
+                error_str += ' Test error | {:15.5f} |'.format(test_errors[-1])
 
+            print error_str
             if liveview and m % 10 == 0:
-                print error_str
                 self.update_live_view(m, train_errors, test_errors)
 
-        if liveview:
-            self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
+        # if liveview:
+        #     self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
 
-        return reg_tree_ensemble, train_errors, test_errors
+        return train_errors, test_errors
+
+    def predict(self, x, m=None):
+        return self._reg_tree_ensemble.evaluate(x, m)
