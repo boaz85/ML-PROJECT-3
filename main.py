@@ -48,7 +48,7 @@ if __name__ == '__main__':
     with open('output.txt', 'w') as f:
         f.write(output)
 
-    f = open('Deliverables/HousingDS/Deliverable4.txt', 'w')
+    f = open('Deliverables/HousingDS/Deliverable4_TreesPrint.txt', 'w')
     for i, tree in enumerate(gbrt.ensemble.trees[:5]):
         f.write('Tree #{}\n--------\n\n'.format(i + 1))
         f.write(tree.root.get_string_representation().format(*train.features) + '\n\n\n')
