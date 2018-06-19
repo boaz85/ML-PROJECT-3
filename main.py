@@ -15,8 +15,7 @@ import matplotlib.pyplot as plt
 from part1 import load_data, split_train_test, TrainData, TestData
 from part3 import GBRT
 
-np.random.seed(1234)
-
+np.random.seed(4321)
 
 if __name__ == '__main__':
 
@@ -28,6 +27,7 @@ if __name__ == '__main__':
 
     with open('config.json', 'r') as f:
         gbrt_config = json.load(f)
+
 
     gbrt = GBRT(**gbrt_config)
     time_before = datetime.datetime.now()

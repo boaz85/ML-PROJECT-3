@@ -116,16 +116,15 @@ class GBRT(object):
             tree = self._cart.fit((train_X[samples], g_m))
 
             phi_of_x = np.array([tree.evaluate(x) for x in train_X])
-            beta_m = np.dot(-g_m, phi_of_x[samples]) / np.sum(np.power(phi_of_x[samples], 2))
-            self._reg_tree_ensemble.add_tree(tree, beta_m)
+            beta_m = phi_of_x[samples].dot(-g_m) / phi_of_x[samples].dot(phi_of_x[samples])
+            self._reg_tree_ensemble.add_tree(tree, shrinkage_factor * beta_m)
 
             train_f_last += shrinkage_factor * beta_m * phi_of_x
 
             if m in self._shrinkage_checkpoints:
-                shrinkage_factor /= 2.0
+                shrinkage_factor *= 0.75
                 if liveview:
                     print 'Shrinkage factor updated to: ', shrinkage_factor
-
 
             train_errors.append(self._mean_error(train_f_last, train_y))
             error_str = 'Learners: {:3d} | Train error: {:15.5f} |'.format(m, train_errors[-1])
