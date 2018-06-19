@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from part1 import load_data, split_train_test, TrainData, TestData
 from part3 import GBRT
 
-np.random.seed(1234)
+np.random.seed(4321)
 
 class Worker(object):
 
@@ -26,7 +26,7 @@ class Worker(object):
         job_config = {key: config_override.get(key, value) for key, value in self._base_config.items()}
         gbrt = GBRT(**job_config)
         time_before = datetime.datetime.now()
-        _, train_errors, test_errors = gbrt.fit(self._train, self._test)
+        train_errors, test_errors = gbrt.fit(self._train, self._test)
         time_after = datetime.datetime.now()
         return train_errors[-1], test_errors[-1], time_after - time_before
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         gbrt_config = json.load(f)
 
     gbrt = GBRT(**gbrt_config)
-    reg_tree_ensemble, train_errors, test_errors = gbrt.fit(train, test)
+    train_errors, test_errors = gbrt.fit(train, test)
 
     fig = plt.figure()
     fig.suptitle('MSE as function of NumberOfBasisFunctions')

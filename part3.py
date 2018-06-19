@@ -139,8 +139,8 @@ class GBRT(object):
                 test_errors.append(self._mean_error(test_predictions, test_set.y))
                 error_str += ' Test error | {:15.5f} |'.format(test_errors[-1])
 
-            print error_str
             if liveview and m % 10 == 0:
+                print error_str
                 self.update_live_view(m, train_errors, test_errors)
 
         self._reg_tree_ensemble.M = np.argmin(test_errors) + 1
