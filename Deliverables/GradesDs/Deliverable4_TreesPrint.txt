@@ -1,0 +1,131 @@
+Tree #1
+--------
+
+if x['G2'] <= 10.0 then
+	if x['G2'] <= 7.0 then
+		if x['absences'] <= 0.0 then
+			return 10.3973582247
+		if x['absences'] > 0.0 then
+			return 4.46242061332
+	if x['G2'] > 7.0 then
+		if x['G2'] <= 9.0 then
+			return 2.73150240872
+		if x['G2'] > 9.0 then
+			return 1.0502994012
+if x['G2'] > 10.0 then
+	if x['G2'] <= 13.0 then
+		if x['G2'] <= 11.0 then
+			return 0.0991366104999
+		if x['G2'] > 11.0 then
+			return -1.54190839101
+	if x['G2'] > 13.0 then
+		if x['G2'] <= 16.0 then
+			return -3.9976344831
+		if x['G2'] > 16.0 then
+			return -6.5309505988
+
+
+
+Tree #2
+--------
+
+if x['G2'] <= 10.0 then
+	if x['G2'] <= 6.0 then
+		if x['absences'] <= 0.0 then
+			return 7.85109193378
+		if x['absences'] > 0.0 then
+			return 3.85601766165
+	if x['G2'] > 6.0 then
+		if x['absences'] <= 0.0 then
+			return 3.06102338004
+		if x['absences'] > 0.0 then
+			return 1.19309377184
+if x['G2'] > 10.0 then
+	if x['G2'] <= 13.0 then
+		if x['G2'] <= 11.0 then
+			return 0.0407831371487
+		if x['G2'] > 11.0 then
+			return -1.02598158468
+	if x['G2'] > 13.0 then
+		if x['G2'] <= 15.0 then
+			return -2.58570437152
+		if x['G2'] > 15.0 then
+			return -4.22702331242
+
+
+
+Tree #3
+--------
+
+if x['G2'] <= 9.0 then
+	if x['G2'] <= 5.0 then
+		return 5.09119394366
+	if x['G2'] > 5.0 then
+		if x['G1'] <= 7.0 then
+			return 2.78036487259
+		if x['G1'] > 7.0 then
+			return 1.12210009681
+if x['G2'] > 9.0 then
+	if x['G2'] <= 14.0 then
+		if x['G2'] <= 12.0 then
+			return -0.054247993049
+		if x['G2'] > 12.0 then
+			return -1.19963932472
+	if x['G2'] > 14.0 then
+		if x['G2'] <= 17.0 then
+			return -2.3258708183
+		if x['G2'] > 17.0 then
+			return -3.52230842543
+
+
+
+Tree #4
+--------
+
+if x['G2'] <= 9.0 then
+	if x['absences'] <= 0.0 then
+		return 3.57297175119
+	if x['absences'] > 0.0 then
+		if x['G2'] <= 8.0 then
+			return 1.24316311523
+		if x['G2'] > 8.0 then
+			return 0.212462858398
+if x['G2'] > 9.0 then
+	if x['G2'] <= 14.0 then
+		if x['G2'] <= 11.0 then
+			return 0.185758886372
+		if x['G2'] > 11.0 then
+			return -0.716485448342
+	if x['G2'] > 14.0 then
+		if x['G2'] <= 16.0 then
+			return -1.63545048715
+		if x['G2'] > 16.0 then
+			return -2.31929348457
+
+
+
+Tree #5
+--------
+
+if x['G2'] <= 8.0 then
+	if x['absences'] <= 0.0 then
+		return 2.619031077
+	if x['absences'] > 0.0 then
+		if x['Medu'] <= 2.0 then
+			return 0.586265288039
+		if x['Medu'] > 2.0 then
+			return 1.53908677927
+if x['G2'] > 8.0 then
+	if x['G1'] <= 13.0 then
+		if x['failures'] <= 0.0 then
+			return -0.165952718359
+		if x['failures'] > 0.0 then
+			return 0.64104832557
+	if x['G1'] > 13.0 then
+		if x['G2'] <= 16.0 then
+			return -0.94348392389
+		if x['G2'] > 16.0 then
+			return -1.61382699777
+
+
+

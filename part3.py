@@ -9,7 +9,11 @@ class CART(object):
     def __init__(self, max_depth, min_node_size, num_thresholds):
         self._max_depth = max_depth
         self._min_node_size = min_node_size
-        self._percentiles = np.linspace(0, 100, num_thresholds + 1, False, dtype=int)[1:]
+
+        if num_thresholds == -1:
+            self._percentiles = None
+        else:
+            self._percentiles = np.linspace(0, 100, num_thresholds + 1, False, dtype=int)[1:]
 
     def fit(self, train_set):
 
@@ -50,7 +54,10 @@ class CART(object):
 
         for j in range(d):
 
-            values = np.percentile(np.unique(X[:, j]), self._percentiles, interpolation='higher')
+            if self._percentiles is None:
+                values = np.unique(X[:, j])
+            else:
+                values = np.percentile(np.unique(X[:, j]), self._percentiles, interpolation='higher')
 
             for s in values:
                 r_lt = np.where(X[:, j] <= s)[0]

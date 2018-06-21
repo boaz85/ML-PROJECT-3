@@ -1,0 +1,16 @@
+SubsamplingFactor: 0.1
+MinNodeSize: 15
+NumOfBasisFunctions: 800
+InitialShrinkage: 0.1
+NumOfLeaves: 4
+NumThresholds: 30
+
+
+Train set mean squared error: 47049.2673289
+Test set mean squared error: 29000.297614
+
+Optimal number of learners: 516
+Train set mean squared error at optimum: 47230.4207844
+Test set mean squared error at optimum: 28986.1806821
+
+Training time: 0:02:33.074062

@@ -1,0 +1,8 @@
+{
+  "num_of_basis_functions": 800,
+  "num_of_leaves": 4,
+  "min_node_size": 15,
+  "initial_shrinkage": 0.1,
+  "subsampling_factor": 0.1,
+  "num_thresholds": 30
+}

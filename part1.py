@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
 
-CATEGORICAL_VARS = ['LotFrontage', 'LotArea', 'YearBuilt', 'MasVnrArea', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', '1stFlrSF', '2ndFlrSF', 'GrLivArea', 'GarageYrBlt', 'GarageArea', 'WoodDeckSF', 'OpenPorchSF', 'EnclosedPorch', '3SsnPorch', 'ScreenPorch', 'PoolArea', 'MiscVal']
-
 # 1.
-def load_data(path):
-    return pd.read_csv(path).drop('Id', axis=1).dropna(subset=['SalePrice'])
+def load_data(path, target_col, drop_cols=None):
+    drop_cols = drop_cols or []
+    return pd.read_csv(path).drop(drop_cols, axis=1).dropna(subset=[target_col])
 
 # 2.
 def split_train_test(data):
@@ -17,10 +16,11 @@ def split_train_test(data):
 # 3. + 4. + 5.
 class TrainData(object):
 
-    def __init__(self, data):
+    def __init__(self, data, target_col):
         self._raw_data = data
-        self._df = data.drop('SalePrice', axis=1)
-        self._labels = data['SalePrice']
+        self._df = data.drop(target_col, axis=1)
+        self._labels = data[target_col]
+        self._target_col = target_col
         self.features = self._df.columns
         self._categorical_maps = {}
 
@@ -31,7 +31,7 @@ class TrainData(object):
         self._df.fillna(self.imputation_map, inplace=True)
 
     def _convert_categorical(self, column):
-        mean_by_col = self._raw_data.groupby(column)['SalePrice'].mean().sort_values()
+        mean_by_col = self._raw_data.groupby(column)[self._target_col].mean().sort_values()
         self._categorical_maps[column] = mean_by_col.rank()
         self._df[column] = self._df[column].map(self._categorical_maps[column])
 
@@ -52,11 +52,11 @@ class TrainData(object):
 # 6.
 class TestData(object):
 
-    def __init__(self, data, imputation_map, categorical_maps):
+    def __init__(self, data, target_col, imputation_map, categorical_maps):
 
-        if 'SalePrice' in data.columns:
-            self._labels = data['SalePrice']
-            self._df = data.drop('SalePrice', axis=1)
+        if target_col in data.columns:
+            self._labels = data[target_col]
+            self._df = data.drop(target_col, axis=1)
         else:
             self._df = data.copy()
 

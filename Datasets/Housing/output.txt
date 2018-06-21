@@ -13,4 +13,4 @@ Optimal number of learners: 625
 Train set mean squared error at optimum: 786383390.499
 Test set mean squared error at optimum: 429044877.486
 
-Training time: 0:08:08.593236
+Training time: 0:08:53.557187

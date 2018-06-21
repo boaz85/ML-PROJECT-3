@@ -19,15 +19,32 @@ np.random.seed(4321)
 
 if __name__ == '__main__':
 
-    df = load_data(sys.argv[1])
+    dataset = sys.argv[1]
+    dataset_dir = 'Datasets/{}/'.format(dataset.title())
+    drop_columns = []
+
+    if dataset == 'housing':
+        target_column = 'SalePrice'
+        drop_columns = ['Id']
+
+    elif dataset == 'grades':
+        target_column = 'finalgrade'
+
+    elif dataset == 'airbnb':
+        target_column = 'price'
+
+    else:
+        raise Exception('Unknown dataset')
+
+    df = load_data(dataset_dir + 'train.csv', target_column, drop_columns)
+    df=df.iloc[:1500]
     train, test = split_train_test(df)
 
-    train = TrainData(train)
-    test = TestData(test, train.get_imputation_map(), train.get_categorical_maps())
+    train = TrainData(train, target_column)
+    test = TestData(test, target_column, train.get_imputation_map(), train.get_categorical_maps())
 
-    with open('config.json', 'r') as f:
+    with open(dataset_dir + 'config.json', 'r') as f:
         gbrt_config = json.load(f)
-
 
     gbrt = GBRT(**gbrt_config)
     time_before = datetime.datetime.now()
@@ -45,10 +62,10 @@ if __name__ == '__main__':
     output += 'Test set mean squared error at optimum: {}\n'.format(test_errors[gbrt.ensemble.M - 1])
     output += '\nTraining time: {}'.format(time_after - time_before)
 
-    with open('output.txt', 'w') as f:
+    with open(dataset_dir + 'output.txt', 'w') as f:
         f.write(output)
 
-    f = open('Deliverables/HousingDS/Deliverable4_TreesPrint.txt', 'w')
+    f = open(dataset_dir + 'Deliverables/Deliverable4_TreesPrint.txt', 'w')
     for i, tree in enumerate(gbrt.ensemble.trees[:5]):
         f.write('Tree #{}\n--------\n\n'.format(i + 1))
         f.write(tree.root.get_string_representation().format(*train.features) + '\n\n\n')
@@ -65,4 +82,4 @@ if __name__ == '__main__':
     plt.subplots_adjust(bottom=0.25)
     plt.ylabel('Importance')
     plt.show(block=False)
-    fig.savefig('Deliverables/HousingDS/Deliverable4_FeatureImportanceBarGraph.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable4_FeatureImportanceBarGraph.png')

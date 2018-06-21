@@ -1,5 +1,6 @@
 import datetime
 import json
+import sys
 
 import numpy as np
 
@@ -32,13 +33,30 @@ class Worker(object):
 
 if __name__ == '__main__':
 
-    df = load_data('train.csv')
+    dataset = sys.argv[1]
+    dataset_dir = 'Datasets/{}/'.format(dataset.title())
+    drop_columns = []
+
+    if dataset == 'housing':
+        target_column = 'SalePrice'
+        drop_columns = ['Id']
+
+    elif dataset == 'grades':
+        target_column = 'finalgrade'
+
+    elif dataset == 'airbnb':
+        target_column = 'price'
+
+    else:
+        raise Exception('Unknown dataset')
+
+    df = load_data(dataset_dir + 'train.csv', target_column, drop_columns)
     train, test = split_train_test(df)
 
-    train = TrainData(train)
-    test = TestData(test, train.get_imputation_map(), train.get_categorical_maps())
+    train = TrainData(train, target_column)
+    test = TestData(test, target_column, train.get_imputation_map(), train.get_categorical_maps())
 
-    with open('config.json', 'r') as f:
+    with open(dataset_dir + 'config.json', 'r') as f:
         gbrt_config = json.load(f)
 
     gbrt = GBRT(**gbrt_config)
@@ -52,9 +70,9 @@ if __name__ == '__main__':
     plt.ylabel('MSE')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable2_MSE_by_NumberOfBasisFunctions.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable2_MSE_by_NumberOfBasisFunctions.png')
 
-    with open('light_config.json', 'r') as f:
+    with open(dataset_dir + 'light_config.json', 'r') as f:
         light_config = json.load(f)
 
     worker = Worker(light_config, train, test)
@@ -74,7 +92,7 @@ if __name__ == '__main__':
     plt.ylabel('MSE')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable2_MSE_by_NumOfLeaves.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable2_MSE_by_NumOfLeaves.png')
 
 
     subsampling_factor_values = np.logspace(-1, 0, 8)
@@ -90,7 +108,7 @@ if __name__ == '__main__':
     plt.ylabel('MSE')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable2_MSE_by_SubsamplingFactor.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable2_MSE_by_SubsamplingFactor.png')
 
     fig = plt.figure()
     fig.suptitle('Train time as function of SubsamplingFactor')
@@ -99,7 +117,7 @@ if __name__ == '__main__':
     plt.ylabel('Time (seconds)')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable3_Time_by_SubsamplingFactor.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable3_Time_by_SubsamplingFactor.png')
 
 
     num_thresholds_values = np.logspace(np.log10(3), 2, 8).astype(int)
@@ -115,7 +133,7 @@ if __name__ == '__main__':
     plt.ylabel('MSE')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable2_MSE_by_NumThresholds.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable2_MSE_by_NumThresholds.png')
 
     fig = plt.figure()
     fig.suptitle('Train time as function of NumThresholds')
@@ -124,4 +142,4 @@ if __name__ == '__main__':
     plt.ylabel('Time (seconds)')
     plt.legend()
     plt.show(block=False)
-    fig.savefig('Deliverable3_Time_by_NumThresholds.png')
+    fig.savefig(dataset_dir + 'Deliverables/Deliverable3_Time_by_NumThresholds.png')

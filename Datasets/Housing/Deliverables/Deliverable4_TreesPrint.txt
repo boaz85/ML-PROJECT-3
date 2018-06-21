@@ -1,0 +1,74 @@
+Tree #1
+--------
+
+if x['OverallQual'] <= 7.0 then
+	if x['Neighborhood'] <= 11.0 then
+		return 52215.1758522
+	if x['Neighborhood'] > 11.0 then
+		return -10944.2020548
+if x['OverallQual'] > 7.0 then
+	if x['MasVnrArea'] <= 194.0 then
+		return -61824.7020548
+	if x['MasVnrArea'] > 194.0 then
+		return -165758.702055
+
+
+
+Tree #2
+--------
+
+if x['OverallQual'] <= 6.0 then
+	if x['GrLivArea'] <= 1387.0 then
+		return 47294.3912036
+	if x['GrLivArea'] > 1387.0 then
+		return 8466.90654129
+if x['OverallQual'] > 6.0 then
+	return -51203.6033698
+
+
+
+Tree #3
+--------
+
+if x['OverallQual'] <= 7.0 then
+	if x['GrLivArea'] <= 1750.0 then
+		return 25352.6337084
+	if x['GrLivArea'] > 1750.0 then
+		return -20410.784612
+if x['OverallQual'] > 7.0 then
+	if x['TotRmsAbvGrd'] <= 9.0 then
+		return -46545.6017318
+	if x['TotRmsAbvGrd'] > 9.0 then
+		return -149813.379658
+
+
+
+Tree #4
+--------
+
+if x['GarageCars'] <= 2.0 then
+	if x['GarageType'] <= 4.17059891107 then
+		return 30078.875599
+	if x['GarageType'] > 4.17059891107 then
+		return -1914.68093891
+if x['GarageCars'] > 2.0 then
+	if x['1stFlrSF'] <= 1654.0 then
+		return -24977.7767254
+	if x['1stFlrSF'] > 1654.0 then
+		return -104963.376839
+
+
+
+Tree #5
+--------
+
+if x['BsmtQual'] <= 3.0 then
+	if x['GrLivArea'] <= 2450.0 then
+		return 8459.11397427
+	if x['GrLivArea'] > 2450.0 then
+		return -62379.3291645
+if x['BsmtQual'] > 3.0 then
+	return -125840.534497
+
+
+
