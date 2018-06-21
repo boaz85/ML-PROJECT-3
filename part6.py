@@ -1,14 +1,8 @@
 import numpy as np
-import collections
 import operator
-import itertools
-from part1 import *
-from part2 import *
-from part3 import *
 
 def tree_relative_feature_importance(tree, data):
     root = tree.root
-    X, y = data.X, data.y
     features_relative_loss = {}
 
     recursive_relative_error_eval(root, data.X, data.y, features_relative_loss)
@@ -67,15 +61,3 @@ def merge_dictionaries(dict1, dict2):
             dict3[key] = dict(dict2)[key]
     return dict3
 
-
-
-
-df = load_data('train.csv')
-train, test = split_train_test(df)
-
-train = TrainData(train)
-test = TestData(test, train.get_imputation_map(), train.get_categorical_maps())
-
-tree_ensemble = GBRT(200, 4, 1, 1.0, 0.4, 0).fit(train, test)
-ensemble_importance = ensemble_relative_feature_importance(tree_ensemble, train)
-print(ensemble_importance)

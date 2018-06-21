@@ -85,7 +85,6 @@ class GBRT(object):
         np.random.shuffle(samples)
         return samples[:int(num_of_samples * self._subsampling)]
 
-
     def update_live_view(self, iteration, train_errors, test_errors, block=False):
 
         plt.plot(range(iteration), train_errors, color='green')
@@ -117,16 +116,15 @@ class GBRT(object):
             tree = self._cart.fit((train_X[samples], g_m))
 
             phi_of_x = np.array([tree.evaluate(x) for x in train_X])
-            beta_m = np.dot(-g_m, phi_of_x[samples]) / np.sum(np.power(phi_of_x[samples], 2))
-            self._reg_tree_ensemble.add_tree(tree, beta_m)
+            beta_m = phi_of_x[samples].dot(-g_m) / phi_of_x[samples].dot(phi_of_x[samples])
+            self._reg_tree_ensemble.add_tree(tree, shrinkage_factor * beta_m)
 
             train_f_last += shrinkage_factor * beta_m * phi_of_x
 
             if m in self._shrinkage_checkpoints:
-                shrinkage_factor /= 2.0
+                shrinkage_factor *= 0.75
                 if liveview:
                     print 'Shrinkage factor updated to: ', shrinkage_factor
-
 
             train_errors.append(self._mean_error(train_f_last, train_y))
             error_str = 'Learners: {:3d} | Train error: {:15.5f} |'.format(m, train_errors[-1])
@@ -141,14 +139,17 @@ class GBRT(object):
                 test_errors.append(self._mean_error(test_predictions, test_set.y))
                 error_str += ' Test error | {:15.5f} |'.format(test_errors[-1])
 
-            print error_str
             if liveview and m % 10 == 0:
+                print error_str
                 self.update_live_view(m, train_errors, test_errors)
 
-        # if liveview:
-        #     self.update_live_view(self._num_of_basis_functions - 1, train_errors, test_errors, block=True)
+        self._reg_tree_ensemble.M = np.argmin(test_errors) + 1
 
         return train_errors, test_errors
 
     def predict(self, x, m=None):
         return self._reg_tree_ensemble.evaluate(x, m)
+
+    @property
+    def ensemble(self):
+        return self._reg_tree_ensemble if hasattr(self, '_reg_tree_ensemble') else None

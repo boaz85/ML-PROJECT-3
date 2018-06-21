@@ -21,6 +21,7 @@ class TrainData(object):
         self._raw_data = data
         self._df = data.drop('SalePrice', axis=1)
         self._labels = data['SalePrice']
+        self.features = self._df.columns
         self._categorical_maps = {}
 
         for column in self._df.dtypes[self._df.dtypes == 'object'].index:

@@ -1,8 +1,8 @@
 {
-  "num_of_basis_functions": 200,
-  "num_of_leaves": 2,
-  "min_node_size": 10,
-  "initial_shrinkage": 1.0,
+  "num_of_basis_functions": 250,
+  "num_of_leaves": 4,
+  "min_node_size": 5,
+  "initial_shrinkage": 0.3,
   "subsampling_factor": 0.3,
-  "num_thresholds": 20
+  "num_thresholds": 60
 }
