@@ -44,9 +44,6 @@ if __name__ == '__main__':
     elif dataset == 'grades':
         target_column = 'finalgrade'
 
-    elif dataset == 'airbnb':
-        target_column = 'price'
-
     else:
         raise Exception('Unknown dataset')
 
